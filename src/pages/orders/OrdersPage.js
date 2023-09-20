@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Card,
     CardBody,
@@ -8,10 +8,20 @@ import OrdersTable from '../../components/Orders/OrdersTable';
 import { getOrders }  from '../../redux/actions/OrderActions';
 import { useSelector, useDispatch } from "react-redux";
 
+
 export default function OrdersPage() {
+  const [orders, setOrders] = useState([]);
+    let BASE_URL = 'http://localhost:5000/api/orders';
+    useEffect(()=>{
+      fetch(BASE_URL)
+      .then(res=>res.json())
+      .then(res=> setOrders(res.data));
+    },[]);
     const dispatch = useDispatch();
 
-    const orders = useSelector((state) => state.orders);
+    console.log(orders,'orders data');
+
+    // const orders = useSelector((state) => state.orders);
   
     const userProgressTableData = [
         {
@@ -59,11 +69,11 @@ export default function OrdersPage() {
               <CardBody>
                 <OrdersTable
                   headers={[
-                    'name',
-                    'date',
-                    'participation',
+                    'Order Type',
+                    'Product Name',
+                    'Date'
                   ]}
-                  usersData={userProgressTableData}
+                  usersData={orders}
                 />
               </CardBody>
             </Card>
