@@ -6,9 +6,13 @@ import AuthPage from 'pages/AuthPage';
 import React from 'react';
 import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import Register from './pages/user/Register';
 import './styles/reduction.scss';
 
-const OrdersPage = React.lazy(() => import('pages/orders/OrdersPage'));
+const OrderSuperAdminPage = React.lazy(() => import('pages/orders/OrderSuperAdminPage'));
+const PurchaseOrderPage = React.lazy(() => import('pages/orders/PurchaseOrderPage'));
+const OrdersBrokerPage = React.lazy(() => import('pages/orders/OrdersBrokerPage'));
+const PlaceOrderForm = React.lazy(() => import('pages/orders/PlaceOrderForm'));
 const AlertPage = React.lazy(() => import('pages/AlertPage'));
 const AuthModalPage = React.lazy(() => import('pages/AuthModalPage'));
 const BadgePage = React.lazy(() => import('pages/BadgePage'));
@@ -29,6 +33,9 @@ const WidgetPage = React.lazy(() => import('pages/WidgetPage'));
 const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
 };
+
+const role = localStorage.getItem("role");
+console.log("role", role);
 
 class App extends React.Component {
   render() {
@@ -56,7 +63,15 @@ class App extends React.Component {
             <MainLayout breakpoint={this.props.breakpoint}>
               <React.Suspense fallback={<PageSpinner />}>
                 <Route exact path="/" component={DashboardPage} />
-                <Route exact path="/orders" component={OrdersPage} />
+                {role == "Broker" ? <Route exact path="/orders" component={OrdersBrokerPage} /> :
+                  null
+                }
+                {role == "Super Admin" ? <Route exact path="/orders" component={OrderSuperAdminPage} />:
+                null
+                }
+            
+                <Route exact path="/placeOrder" component={PlaceOrderForm} />
+                <Route exact path="/purchase/:id" component={PurchaseOrderPage} />
                 <Route exact path="/login-modal" component={AuthModalPage} />
                 <Route exact path="/buttons" component={ButtonPage} />
                 <Route exact path="/cards" component={CardPage} />
