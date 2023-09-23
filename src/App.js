@@ -6,6 +6,7 @@ import AuthPage from 'pages/AuthPage';
 import React from 'react';
 import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import Register from './pages/user/Register';
 import './styles/reduction.scss';
 
 import { Provider, useSelector } from 'react-redux';
@@ -13,6 +14,12 @@ import PrivateRoute from './components/PrivateRoute';
 import routes from './utils/routes';
 
 const OrdersPage = React.lazy(() => import('pages/orders/OrdersPage'));
+const OrderSuperAdminPage = React.lazy(() => import('pages/orders/OrderSuperAdminPage'));
+const PurchaseOrderPage = React.lazy(() => import('pages/orders/PurchaseOrderPage'));
+const OrdersBrokerPage = React.lazy(() => import('pages/orders/OrdersBrokerPage'));
+const PlaceOrderForm = React.lazy(() => import('pages/orders/PlaceOrderForm'));
+
+
 const AlertPage = React.lazy(() => import('pages/AlertPage'));
 const AuthModalPage = React.lazy(() => import('pages/AuthModalPage'));
 const BadgePage = React.lazy(() => import('pages/BadgePage'));
@@ -78,6 +85,16 @@ const App = (props) => {
 
                 {/* <Route exact path="/" component={DashboardPage} />
                 <Route exact path="/orders" component={OrdersPage} />
+                <Route exact path="/" component={DashboardPage} />
+                {role == "Broker" ? <Route exact path="/orders" component={OrdersBrokerPage} /> :
+                  null
+                }
+                {role == "Super Admin" ? <Route exact path="/orders" component={OrderSuperAdminPage} />:
+                null
+                }
+            
+                <Route exact path="/placeOrder" component={PlaceOrderForm} />
+                <Route exact path="/purchase/:id" component={PurchaseOrderPage} />
                 <Route exact path="/login-modal" component={AuthModalPage} />
                 <Route exact path="/buttons" component={ButtonPage} />
                 <Route exact path="/cards" component={CardPage} />

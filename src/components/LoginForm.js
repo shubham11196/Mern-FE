@@ -5,9 +5,8 @@ import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useHistory } from 'react-router-dom';
-function AuthForm({authState}) {
-  const history = useHistory();
+
+function LoginForm() {
   const [logdata, setData] = useState({
     email: "",
     password: "",
@@ -25,22 +24,10 @@ function AuthForm({authState}) {
   }
 
   const onSubmit = async () => {
-     if(authState == "SIGNUP"){
       const res = await axios.post('http://localhost:5000/api/users/register', logdata);
       console.log(res);
       toast("User Registered Successfully");
-     }
-     else{
-      const res = await axios.post('http://localhost:5000/api/users/login', logdata);
-      localStorage.setItem("email",res.data['userlogin'].email);
-      localStorage.setItem("role",res.data['userlogin'].role)
-      setTimeout(()=> {
-        history.push('/orders')
-      },1400)
-      toast("User Logged In Successfully");
-
-     }
-      
+      // history.push('/orders')
   
   }
   return (
@@ -66,7 +53,6 @@ function AuthForm({authState}) {
         <Label for="password">Enter Password</Label>
         <Input name="password" value={logdata.password} onChange={handleChange}/>
       </FormGroup>
-      
       <FormGroup>
         <Label for="deliveryTime">User Role</Label>
         <br />
@@ -88,12 +74,13 @@ function AuthForm({authState}) {
       </FormGroup>
 
       <FormGroup check>
-          
-          {authState == "SIGNUP" ?         
-          <Label check>Agree the terms and policy</Label>
-          :
-          <Label check>Remember me</Label>
-          }
+        <Label check>
+          <Input type="checkbox" />{' '}
+          {/* {this.isSignup ?  */}
+          Agree the terms and policy
+          {/* : */}
+          {/* 'Remember me'} */}
+        </Label>
       </FormGroup>
       <hr />
       <Button
@@ -109,11 +96,15 @@ function AuthForm({authState}) {
       <div className="text-center pt-1">
         <h6>or</h6>
         <h6>
-          {authState == "SIGNUP" ?<a href="/login">Login</a>
-          :
-          <a href="#signup">Signup</a>
-          }
-          
+          {/* {this.isSignup ? ( */}
+          <a href="#login">
+            Login
+          </a>
+          {/* ) : ( */}
+          {/* <a href="#signup">
+                Signup
+              </a> */}
+          {/* )} */}
         </h6>
       </div>
       <ToastContainer />
@@ -122,41 +113,4 @@ function AuthForm({authState}) {
   );
   // }
 }
-
-export const STATE_LOGIN = 'LOGIN';
-export const STATE_SIGNUP = 'SIGNUP';
-
-AuthForm.propTypes = {
-  authState: PropTypes.oneOf([STATE_LOGIN, STATE_SIGNUP]).isRequired,
-  showLogo: PropTypes.bool,
-  usernameLabel: PropTypes.string,
-  usernameInputProps: PropTypes.object,
-  passwordLabel: PropTypes.string,
-  passwordInputProps: PropTypes.object,
-  confirmPasswordLabel: PropTypes.string,
-  confirmPasswordInputProps: PropTypes.object,
-  onLogoClick: PropTypes.func,
-};
-
-AuthForm.defaultProps = {
-  authState: 'LOGIN',
-  showLogo: true,
-  usernameLabel: 'Email',
-  usernameInputProps: {
-    type: 'email',
-    placeholder: 'your@email.com',
-  },
-  passwordLabel: 'Password',
-  passwordInputProps: {
-    type: 'password',
-    placeholder: 'your password',
-  },
-  confirmPasswordLabel: 'Confirm Password',
-  confirmPasswordInputProps: {
-    type: 'password',
-    placeholder: 'confirm your password',
-  },
-  onLogoClick: () => { },
-};
-
-export default AuthForm;
+export default LoginForm;
