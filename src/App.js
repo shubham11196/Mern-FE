@@ -8,6 +8,10 @@ import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './styles/reduction.scss';
 
+import { Provider, useSelector } from 'react-redux';
+import PrivateRoute from './components/PrivateRoute';
+import routes from './utils/routes';
+
 const OrdersPage = React.lazy(() => import('pages/orders/OrdersPage'));
 const AlertPage = React.lazy(() => import('pages/AlertPage'));
 const AuthModalPage = React.lazy(() => import('pages/AuthModalPage'));
@@ -30,10 +34,13 @@ const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
 };
 
-class App extends React.Component {
-  render() {
-    return (
-      <BrowserRouter basename={getBasename()}>
+const App = (props) => {
+  const isAuthenticated = true;
+  // useSelector(state => state.auth.isAuthenticated); // Assuming you have a selector for authentication state
+  const userRole = 'admin';
+  console.log(useSelector(state => state), 'state');
+  return (
+    <BrowserRouter basename={getBasename()}>
         <GAListener>
           <Switch>
             <LayoutRoute
@@ -53,9 +60,23 @@ class App extends React.Component {
               )}
             />
 
-            <MainLayout breakpoint={this.props.breakpoint}>
+
+
+            <MainLayout breakpoint={props.breakpoint}>
               <React.Suspense fallback={<PageSpinner />}>
-                <Route exact path="/" component={DashboardPage} />
+                {routes.map((route, index) => (
+                  <PrivateRoute
+                    key={index}
+                    path={route.path}
+                    exact
+                    component={route.component}
+                    isAuthenticated={isAuthenticated}
+                    authorizedRoles={route.roles}
+                    userRole={userRole}
+                  />
+                ))}
+
+                {/* <Route exact path="/" component={DashboardPage} />
                 <Route exact path="/orders" component={OrdersPage} />
                 <Route exact path="/login-modal" component={AuthModalPage} />
                 <Route exact path="/buttons" component={ButtonPage} />
@@ -75,15 +96,14 @@ class App extends React.Component {
                 <Route exact path="/modals" component={ModalPage} />
                 <Route exact path="/forms" component={FormPage} />
                 <Route exact path="/input-groups" component={InputGroupPage} />
-                <Route exact path="/charts" component={ChartPage} />
+                <Route exact path="/charts" component={ChartPage} /> */}
               </React.Suspense>
             </MainLayout>
             <Redirect to="/" />
           </Switch>
         </GAListener>
-      </BrowserRouter>
-    );
-  }
+    </BrowserRouter>
+  );
 }
 
 const query = ({ width }) => {

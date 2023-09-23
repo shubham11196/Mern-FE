@@ -5,14 +5,16 @@ import axios from 'axios'; // Import axios
 const API_BASE_URL = 'http://localhost:5000/api';
 
 const initialState = {
-  user: null,
+  user: {
+    role:null
+  },
   isAuthenticated: false,
   loading: false,
   error: null,
 };
 
 // Async thunk for logging in
-export const loginUser = createAsyncThunk('authentication/loginUser', async (userCredentials, thunkAPI) => {
+export const loginUser = createAsyncThunk('auth/loginUser', async (userCredentials, thunkAPI) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, userCredentials);
 
@@ -43,7 +45,7 @@ export const logoutUser = createAsyncThunk('authentication/logoutUser', async (_
 });
 
 const authenticationSlice = createSlice({
-  name: 'authentication',
+  name: 'auth',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
