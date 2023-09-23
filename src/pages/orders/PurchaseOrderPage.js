@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     Card,
     CardBody,
@@ -11,7 +11,7 @@ export default function PurchaseOrderPage() {
     useEffect(()=>{
         fetch("http://localhost:5000/api/orders")
         .then(res=>res.json())
-        .then(res=> setOrders(res.data));
+        // .then(res=> setOrders(res.data));
       },[]);
   return (
     <div>
