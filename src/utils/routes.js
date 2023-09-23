@@ -8,7 +8,7 @@ const routes = [
     },
     {
         path: '/orders',
-        component: React.lazy(() => import('pages/orders/OrdersPage')),
+        component: React.lazy(() => import('pages/orders/OrdersBrokerPage')),
         roles: ['admin', 'user']
     },
 
