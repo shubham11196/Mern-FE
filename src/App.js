@@ -6,12 +6,12 @@ import AuthPage from 'pages/AuthPage';
 import React from 'react';
 import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
-import Register from './pages/user/Register';
 import './styles/reduction.scss';
 
-import { Provider, useSelector } from 'react-redux';
+import {  useDispatch } from 'react-redux';
 import PrivateRoute from './components/PrivateRoute';
 import routes from './utils/routes';
+import { saveUserDetails } from './store/authSlice';
 
 const OrdersPage = React.lazy(() => import('pages/orders/OrdersPage'));
 const OrderSuperAdminPage = React.lazy(() => import('pages/orders/OrderSuperAdminPage'));
@@ -42,10 +42,11 @@ const getBasename = () => {
 };
 
 const App = (props) => {
-  const isAuthenticated = true;
-  // useSelector(state => state.auth.isAuthenticated); // Assuming you have a selector for authentication state
-  const userRole = 'admin';
-  console.log(useSelector(state => state), 'state');
+  const dispatch = useDispatch();
+  let userDetails = JSON.parse(localStorage.getItem('userDetails'));
+  if(userDetails.token && userDetails.user){
+    dispatch(saveUserDetails({token:userDetails.token, userlogin: userDetails.user}));
+  }
   return (
     <BrowserRouter basename={getBasename()}>
         <GAListener>
@@ -77,9 +78,7 @@ const App = (props) => {
                     path={route.path}
                     exact
                     component={route.component}
-                    isAuthenticated={isAuthenticated}
                     authorizedRoles={route.roles}
-                    userRole={userRole}
                   />
                 ))}
 

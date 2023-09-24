@@ -1,4 +1,3 @@
-// authenticationSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios'; // Import axios
 
@@ -8,19 +7,19 @@ const initialState = {
   user: {
     role:null
   },
+  token:'',
   isAuthenticated: false,
   loading: false,
   error: null,
 };
 
 // Async thunk for logging in
-export const loginUser = createAsyncThunk('auth/loginUser', async (userCredentials, thunkAPI) => {
+export const login = createAsyncThunk('auth/login', async (data, thunkAPI) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/login`, userCredentials);
-
-    if (response.status === 200) {
-      const user = response.data;
-      return user;
+      const response = await axios.post(`${API_BASE_URL}/users/login`, data);
+    if (response.status === 201) {
+        const payload = response.data;
+      return payload;
     } else {
       throw new Error('Authentication failed');
     }
@@ -29,10 +28,25 @@ export const loginUser = createAsyncThunk('auth/loginUser', async (userCredentia
   }
 });
 
+export const register = createAsyncThunk('auth/register', async (data, thunkAPI) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/users/register`, data);
+        console.log(response, 'respone from register');
+      if (response.status === 201) {
+          const payload = response.data;
+        return payload;
+      } else {
+        throw new Error('Authentication failed');
+      }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  });
+
 // Async thunk for logging out
-export const logoutUser = createAsyncThunk('authentication/logoutUser', async (_, thunkAPI) => {
+export const logout = createAsyncThunk('authentication/logout', async (_, thunkAPI) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/logout`);
+    const response = await axios.post(`${API_BASE_URL}/users/logout`);
     
     if (response.status === 200) {
       return null;
@@ -47,32 +61,52 @@ export const logoutUser = createAsyncThunk('authentication/logoutUser', async (_
 const authenticationSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    saveUserDetails: (state, action)=> {
+        state.isAuthenticated = true;
+        state.user = action.payload.userlogin;
+        state.token = action.payload.token;
+    }
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => {
+      .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+      .addCase(login.fulfilled, (state, action) => {
+        authenticationSlice.caseReducers.saveUserDetails(state, action);
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isAuthenticated = false;
+        state.loading = false;
+      })
+      .addCase(register.pending, (state) => { //register related thunk reducers
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(register.fulfilled, (state, action) => {
+        state.user = action.payload.userlogin;
+        state.token = action.payload.token;
         state.isAuthenticated = true;
         state.loading = false;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(register.rejected, (state, action) => {
         state.error = action.payload;
+        state.isAuthenticated = false;
         state.loading = false;
       })
-      .addCase(logoutUser.pending, (state) => {
+      .addCase(logout.pending, (state) => {  // logout related actions
         state.loading = true;
         state.error = null;
       })
-      .addCase(logoutUser.fulfilled, (state) => {
+      .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
         state.loading = false;
       })
-      .addCase(logoutUser.rejected, (state, action) => {
+      .addCase(logout.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });
@@ -80,4 +114,4 @@ const authenticationSlice = createSlice({
 });
 
 export default authenticationSlice.reducer;
-export const { selectUser, selectIsAuthenticated } = authenticationSlice.actions;
+export const { saveUserDetails } = authenticationSlice.actions;

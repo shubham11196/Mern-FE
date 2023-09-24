@@ -1,12 +1,30 @@
 import logo200Image from 'assets/img/logo/logo_200.png';
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
-import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useHistory } from 'react-router-dom';
-function AuthForm({authState}) {
+import { useDispatch, useSelector } from 'react-redux';
+import { login, logout, register } from '../store/authSlice';
+function AuthForm({ authState }) {
+  const dispatch = useDispatch();
+  const {isAuthenticated, user, token} = useSelector((state) => state.auth);
+  useEffect(() => {
+    if(isAuthenticated){
+      setData({ ...logdata, email: "", password: "" })
+      
+      authState === 'SIGNUP' ? toast("User Registered Successfully") :toast("User Logged In Successfully");
+      setTimeout(() => {
+        history.push('/orders')
+      }, 1400)
+      let storageData = {
+        token: token,
+        user: user 
+      };
+      localStorage.setItem('userDetails', JSON.stringify(storageData));
+    }
+  },[isAuthenticated,user]);
   const history = useHistory();
   const [logdata, setData] = useState({
     email: "",
@@ -14,34 +32,28 @@ function AuthForm({authState}) {
     role: ""
   });
 
-  const handleChange = (e) =>{
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setData(() => {
       return {
         ...logdata,
         [name]: value
       }
-    }) 
+    })
   }
 
-  const onSubmit = async () => {
-     if(authState == "SIGNUP"){
-      const res = await axios.post('http://localhost:5000/api/users/register', logdata);
-      console.log(res);
-      toast("User Registered Successfully");
-     }
-     else{
-      const res = await axios.post('http://localhost:5000/api/users/login', logdata);
-      localStorage.setItem("email",res.data['userlogin'].email);
-      localStorage.setItem("role",res.data['userlogin'].role)
-      setTimeout(()=> {
-        history.push('/orders')
-      },1400)
-      toast("User Logged In Successfully");
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const { email, password } = logdata;
+    const data = { email, password };
 
-     }
-      
-  
+    if (authState === "SIGNUP") {
+      dispatch(register(data));
+    }
+    else {
+      dispatch(login(data));
+    }
+
   }
   return (
     <Form
@@ -60,13 +72,13 @@ function AuthForm({authState}) {
       {/* )} */}
       <FormGroup>
         <Label for="email">Enter Email Address</Label>
-        <Input name="email" value={logdata.email} onChange={handleChange}/>
+        <Input name="email" value={logdata.email} onChange={handleChange} />
       </FormGroup>
       <FormGroup>
         <Label for="password">Enter Password</Label>
-        <Input name="password" value={logdata.password} onChange={handleChange}/>
+        <Input name="password" value={logdata.password} onChange={handleChange} />
       </FormGroup>
-      
+
       <FormGroup>
         <Label for="deliveryTime">User Role</Label>
         <br />
@@ -88,19 +100,19 @@ function AuthForm({authState}) {
       </FormGroup>
 
       <FormGroup check>
-          
-          {authState == "SIGNUP" ?         
+
+        {authState === "SIGNUP" ?
           <Label check>Agree the terms and policy</Label>
           :
           <Label check>Remember me</Label>
-          }
+        }
       </FormGroup>
       <hr />
       <Button
         size="lg"
         className="bg-gradient-theme-left border-0"
         block
-      onClick={onSubmit}
+        onClick={onSubmit}
       >
         Submit
         {/* {this.renderButtonText()} */}
@@ -109,11 +121,11 @@ function AuthForm({authState}) {
       <div className="text-center pt-1">
         <h6>or</h6>
         <h6>
-          {authState == "SIGNUP" ?<a href="/login">Login</a>
-          :
-          <a href="#signup">Signup</a>
+          {authState === "SIGNUP" ? <a href="/login">Login</a>
+            :
+            <a href="/signup">Signup</a>
           }
-          
+
         </h6>
       </div>
       <ToastContainer />
