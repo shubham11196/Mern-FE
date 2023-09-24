@@ -13,6 +13,7 @@ import {
 import Page from '../../components/Page';
 import { Label } from 'reactstrap';
 import PurchaseDetailsTable from '../../components/Orders/PurchaseDetailsTable';
+import axios from 'axios';
 
 export default function PurchaseOrderPage() {
     const [order, setOrder] = useState([]);
@@ -49,7 +50,28 @@ export default function PurchaseOrderPage() {
     const onSubmit = () => {
 
     }
-    console.log("Purchase order")
+    const handlePurchaseChange = (e, product, i) =>{
+      e.preventDefault();
+      let oldPurchases = [...purchase];
+      product[e.target.name] = e.target.value;
+      oldPurchases[i] = product;
+      setPurchase(oldPurchases);
+    }
+
+    const addNewPurchase = () => {
+      let newPurchase = {
+        productName: '',
+        quantity: 0,
+        unit:0,
+        price:0
+      };
+      setPurchase(oldState => [...oldState, newPurchase]);
+    }
+
+    const savePurchase = () =>{
+      console.log(purchase,'purchase data');
+      axios.post('http://localhost:5000/api/orders/createVoucher/41',purchase).then(res=>console.log(res));
+    }
 
     return (
         <div>
@@ -115,6 +137,8 @@ export default function PurchaseOrderPage() {
             <br/>
             <Card>
                 <CardBody>
+                  <button onClick={()=>addNewPurchase()} className='btn btn-primary'>Add New</button>
+                  <button onClick={()=>savePurchase()} className='btn btn-primary'>Save</button>
                     <table style={{marginLeft:"135px"}}>
                         <thead>
                             <th>Item</th>
@@ -125,76 +149,25 @@ export default function PurchaseOrderPage() {
 
                         </thead>
                         <tbody>
-                            {purchase.map((pur, index) => (
+                            {purchase.map((pur, idx) => (
                                 <tr>
                                     <th>
-                                        <input value={pur.productName}></input>
+                                        <input name='productName' onChange={(e)=> handlePurchaseChange(e, pur, idx)} value={pur.productName}></input>
                                     </th>
                                     <th>
-                                        <input value={pur.quantity}></input>
+                                        <input name='quantity' onChange={(e)=> handlePurchaseChange(e, pur, idx)} value={pur.quantity}></input>
                                     </th>
                                     <th>
-                                        <input value={pur.unit}></input>
+                                        <input name='unit' onChange={(e)=> handlePurchaseChange(e, pur, idx)} value={pur.unit}></input>
                                     </th>
                                     <th>
-                                        <input value={pur.price}></input>
+                                        <input name='price' onChange={(e)=> handlePurchaseChange(e, pur, idx)} value={pur.price}></input>
                                     </th>
                                     <th>
                                         <input value={pur.price * pur.quantity}></input>
                                     </th>
                                 </tr>
                             ))}
-                            <tr>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                                <th>
-                                    <input />
-                                </th>
-                            </tr>
                         </tbody>
                     </table>
                 </CardBody>
