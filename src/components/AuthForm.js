@@ -76,7 +76,7 @@ function AuthForm({ authState }) {
       </FormGroup>
       <FormGroup>
         <Label for="password">Enter Password</Label>
-        <Input name="password" value={logdata.password} onChange={handleChange} />
+        <Input name="password" type="password" value={logdata.password} onChange={handleChange} />
       </FormGroup>
 
       <FormGroup>
