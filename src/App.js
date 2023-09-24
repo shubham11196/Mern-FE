@@ -6,13 +6,20 @@ import AuthPage from 'pages/AuthPage';
 import React from 'react';
 import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
-import Register from './pages/user/Register';
 import './styles/reduction.scss';
 
+import {  useDispatch } from 'react-redux';
+import PrivateRoute from './components/PrivateRoute';
+import routes from './utils/routes';
+import { saveUserDetails } from './store/authSlice';
+
+const OrdersPage = React.lazy(() => import('pages/orders/OrdersPage'));
 const OrderSuperAdminPage = React.lazy(() => import('pages/orders/OrderSuperAdminPage'));
 const PurchaseOrderPage = React.lazy(() => import('pages/orders/PurchaseOrderPage'));
 const OrdersBrokerPage = React.lazy(() => import('pages/orders/OrdersBrokerPage'));
 const PlaceOrderForm = React.lazy(() => import('pages/orders/PlaceOrderForm'));
+
+
 const AlertPage = React.lazy(() => import('pages/AlertPage'));
 const AuthModalPage = React.lazy(() => import('pages/AuthModalPage'));
 const BadgePage = React.lazy(() => import('pages/BadgePage'));
@@ -34,13 +41,14 @@ const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
 };
 
-const role = localStorage.getItem("role");
-console.log("role", role);
-
-class App extends React.Component {
-  render() {
-    return (
-      <BrowserRouter basename={getBasename()}>
+const App = (props) => {
+  const dispatch = useDispatch();
+  let userDetails = JSON.parse(localStorage.getItem('userDetails'));
+  if(userDetails.token && userDetails.user){
+    dispatch(saveUserDetails({token:userDetails.token, userlogin: userDetails.user}));
+  }
+  return (
+    <BrowserRouter basename={getBasename()}>
         <GAListener>
           <Switch>
             <LayoutRoute
@@ -60,8 +68,22 @@ class App extends React.Component {
               )}
             />
 
-            <MainLayout breakpoint={this.props.breakpoint}>
+
+
+            <MainLayout breakpoint={props.breakpoint}>
               <React.Suspense fallback={<PageSpinner />}>
+                {routes.map((route, index) => (
+                  <PrivateRoute
+                    key={index}
+                    path={route.path}
+                    exact
+                    component={route.component}
+                    authorizedRoles={route.roles}
+                  />
+                ))}
+
+                {/* <Route exact path="/" component={DashboardPage} />
+                <Route exact path="/orders" component={OrdersPage} />
                 <Route exact path="/" component={DashboardPage} />
                 {role == "Broker" ? <Route exact path="/orders" component={OrdersBrokerPage} /> :
                   null
@@ -90,15 +112,14 @@ class App extends React.Component {
                 <Route exact path="/modals" component={ModalPage} />
                 <Route exact path="/forms" component={FormPage} />
                 <Route exact path="/input-groups" component={InputGroupPage} />
-                <Route exact path="/charts" component={ChartPage} />
+                <Route exact path="/charts" component={ChartPage} /> */}
               </React.Suspense>
             </MainLayout>
             <Redirect to="/" />
           </Switch>
         </GAListener>
-      </BrowserRouter>
-    );
-  }
+    </BrowserRouter>
+  );
 }
 
 const query = ({ width }) => {
